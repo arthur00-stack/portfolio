@@ -352,4 +352,5 @@ Ce template est libre d'utilisation pour votre portfolio personnel.
 
 **Fait avec ❤️ et Next.js**
 
-Bonne chance pour votre lancement sur Fiverr et Malt ! 🚀
+Bonne chance pour votre lancement sur Fiverr et Malt ! 🚀#   p o r t f o l i o  
+ 
