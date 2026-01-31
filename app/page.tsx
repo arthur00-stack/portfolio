@@ -3,42 +3,53 @@
 import { useState, useEffect, useRef } from 'react';
 import { Github, Mail, ExternalLink, Code2, Sparkles, ArrowRight, Menu, X, Briefcase } from 'lucide-react';
 
+type SectionKey = 'accueil' | 'projets' | 'compétences' | 'services' | 'contact';
+
 export default function Portfolio() {
-  const [activeSection, setActiveSection] = useState('home');
+  const [activeSection, setActiveSection] = useState<string>('accueil');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
-  const homeRef = useRef(null);
-  const projectsRef = useRef(null);
-  const skillsRef = useRef(null);
-  const servicesRef = useRef(null);
-  const contactRef = useRef(null);
+  const homeRef = useRef<HTMLElement | null>(null);
+  const projectsRef = useRef<HTMLElement | null>(null);
+  const skillsRef = useRef<HTMLElement | null>(null);
+  const servicesRef = useRef<HTMLElement | null>(null);
+  const contactRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    const handleMouseMove = (e) => {
+    const handleMouseMove = (e: MouseEvent) => {
       setMousePosition({ x: e.clientX, y: e.clientY });
     };
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  const scrollToSection = (section) => {
-    const refs = {
-      'accueil': homeRef,
-      'projets': projectsRef,
-      'compétences': skillsRef,
-      'services': servicesRef,
-      'contact': contactRef
+  const scrollToSection = (section: SectionKey) => {
+    const refs: Record<SectionKey, React.RefObject<HTMLElement | null>> = {
+      accueil: homeRef,
+      projets: projectsRef,
+      compétences: skillsRef,
+      services: servicesRef,
+      contact: contactRef,
     };
 
     const ref = refs[section];
-    if (ref && ref.current) {
+    if (ref?.current) {
       const yOffset = -80;
       const y = ref.current.getBoundingClientRect().top + window.pageYOffset + yOffset;
       window.scrollTo({ top: y, behavior: 'smooth' });
     }
     setActiveSection(section);
   };
+
+  // Définir les items de navigation avec "as const" pour aider TypeScript
+  const navItems = [
+    'Accueil',
+    'Projets',
+    'Compétences',
+    'Services',
+    'Contact',
+  ] as const;
 
   const projects = [
     {
@@ -47,7 +58,7 @@ export default function Portfolio() {
       tech: ["Next.js 15", "Firebase", "Tailwind CSS", "Chart.js"],
       image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop",
       link: "https://demo-dashboard.vercel.app",
-      github: "https://github.com/arthur00-stack/saas-dashboard",
+      github: "https://github.com/username/dashboard",
       stats: { performance: "98", seo: "100", accessibility: "95" }
     },
     {
@@ -56,7 +67,7 @@ export default function Portfolio() {
       tech: ["Next.js", "TypeScript", "Framer Motion", "Stripe"],
       image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop",
       link: "https://landing-demo.vercel.app",
-      github: "https://github.com/arthur00-stack/ecommerce-landing",
+      github: "https://github.com/username/landing",
       stats: { performance: "97", seo: "100", accessibility: "98" }
     },
     {
@@ -65,7 +76,7 @@ export default function Portfolio() {
       tech: ["Next.js", "Sanity", "TypeScript", "RSS"],
       image: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&auto=format&fit=crop",
       link: "https://blog-demo.vercel.app",
-      github: "https://github.com/arthur00-stack/nextjs-sanity-blog",
+      github: "https://github.com/username/blog",
       stats: { performance: "99", seo: "100", accessibility: "96" }
     }
   ];
@@ -121,16 +132,21 @@ export default function Portfolio() {
           
           {/* Desktop Menu */}
           <div className="hidden md:flex gap-8">
-            {['Accueil', 'Projets', 'Compétences', 'Services', 'Contact'].map((item) => (
-              <button
-                key={item}
-                onClick={() => scrollToSection(item.toLowerCase())}
-                className="text-slate-300 hover:text-white transition-colors relative group"
-              >
-                {item}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-indigo-400 group-hover:w-full transition-all duration-300" />
-              </button>
-            ))}
+            {navItems.map((item) => {
+              // Conversion safe vers SectionKey
+              const sectionKey = item.toLowerCase() as SectionKey;
+
+              return (
+                <button
+                  key={item}
+                  onClick={() => scrollToSection(sectionKey)}
+                  className="text-slate-300 hover:text-white transition-colors relative group"
+                >
+                  {item}
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-indigo-400 group-hover:w-full transition-all duration-300" />
+                </button>
+              );
+            })}
           </div>
 
           {/* Mobile Menu Button */}
@@ -145,18 +161,22 @@ export default function Portfolio() {
         {/* Mobile Menu */}
         {isMenuOpen && (
           <div className="md:hidden bg-slate-900 border-t border-slate-800">
-            {['Accueil', 'Projets', 'Compétences', 'Services', 'Contact'].map((item) => (
-              <button
-                key={item}
-                onClick={() => {
-                  scrollToSection(item.toLowerCase());
-                  setIsMenuOpen(false);
-                }}
-                className="block w-full text-left px-6 py-3 text-slate-300 hover:bg-slate-800 transition-colors"
-              >
-                {item}
-              </button>
-            ))}
+            {navItems.map((item) => {
+              const sectionKey = item.toLowerCase() as SectionKey;
+
+              return (
+                <button
+                  key={item}
+                  onClick={() => {
+                    scrollToSection(sectionKey);
+                    setIsMenuOpen(false);
+                  }}
+                  className="block w-full text-left px-6 py-3 text-slate-300 hover:bg-slate-800 transition-colors"
+                >
+                  {item}
+                </button>
+              );
+            })}
           </div>
         )}
       </nav>
@@ -244,7 +264,6 @@ export default function Portfolio() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/50 to-transparent opacity-60" />
                   
-                  {/* Stats Overlay */}
                   <div className="absolute top-4 right-4 flex gap-2">
                     <div className="bg-green-500/90 text-white text-xs font-bold px-2 py-1 rounded">
                       {project.stats.performance}
@@ -333,7 +352,6 @@ export default function Portfolio() {
             ))}
           </div>
 
-          {/* Additional Tech Stack */}
           <div className="mt-12 text-center">
             <p className="text-slate-400 mb-4">Également à l&apos;aise avec :</p>
             <div className="flex flex-wrap justify-center gap-3">
@@ -460,8 +478,8 @@ export default function Portfolio() {
       {/* Footer */}
       <footer className="py-8 px-6 border-t border-slate-800">
         <div className="max-w-7xl mx-auto text-center text-slate-400">
-          <p>© 2025 Portfolio Next.js - Tous droits réservés</p>
-          <p className="text-sm mt-2">Développé avec Next.js 15, React & Tailwind CSS</p>
+          <p>© 2026 Portfolio Next.js - Tous droits réservés</p>
+          <p className="text-sm mt-2">Développé avec Next.js, React & Tailwind CSS</p>
         </div>
       </footer>
 
@@ -482,25 +500,11 @@ export default function Portfolio() {
           opacity: 0;
         }
 
-        .delay-100 {
-          animation-delay: 100ms;
-        }
-
-        .delay-200 {
-          animation-delay: 200ms;
-        }
-
-        .delay-300 {
-          animation-delay: 300ms;
-        }
-
-        .delay-400 {
-          animation-delay: 400ms;
-        }
-
-        .delay-1000 {
-          animation-delay: 1000ms;
-        }
+        .delay-100 { animation-delay: 100ms; }
+        .delay-200 { animation-delay: 200ms; }
+        .delay-300 { animation-delay: 300ms; }
+        .delay-400 { animation-delay: 400ms; }
+        .delay-1000 { animation-delay: 1000ms; }
 
         html {
           scroll-behavior: smooth;
